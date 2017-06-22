@@ -1,0 +1,3 @@
+en:
+  site_settings:
+    gitter_enabled: "Will this plugin use gitter?"

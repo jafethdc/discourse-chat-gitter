@@ -1,0 +1,22 @@
+en:
+  js:
+    gitter:
+      title: "Gitter"
+      show: "Gitter configuration"
+      delete: 'Delete'
+      present:
+        mute: 'Muting'
+        follow: 'First post only'
+        watch: 'All posts and replies'
+      future:
+        mute: 'Mute notifications'
+        follow: 'Notify of first post'
+        watch: 'Notify of all posts and replies'
+      choose:
+        all_categories: 'All categories'
+        deleted_category: 'Deleted category'
+        filter: 'Choose a filter'
+        tags: 'Choose tags'
+        channel: '#channel, @user or Channel ID'
+
+

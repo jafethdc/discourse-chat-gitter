@@ -1,0 +1,51 @@
+<h2>Room: {{integration.room}}</h2>
+<h3>Webhook: {{integration.webhook}}</h3>
+
+<table>
+  <tr>
+    <th>Category id</th>
+    {{#if siteSettings.tagging_enabled}}
+      <th>Tags</th>
+    {{/if}}
+    <th>Filter</th>
+    <th></th>
+  </tr>
+
+  {{#each integration.filters as |filter|}}
+    <tr>
+      <td>{{filter.categoryName}}</td>
+
+      {{#if siteSettings.tagging_enabled}}
+        <td>{{filter.tags}}</td>
+      {{/if}}
+
+      <td>{{filter.filterName}}</td>
+      <td>
+        {{d-button action="deleteFilter" actionParam=filter icon="trash-o" class="delete btn-danger" title="gitter.delete"}}
+      </td>
+    </tr>
+  {{/each}}
+
+  <tr class="new-filter">
+    <td>
+      {{category-chooser
+        value=editingFilter.category_id
+        rootNoneLabel="gitter.choose.all_categories"
+        rootNone=true}}
+    </td>
+
+    {{#if siteSettings.tagging_enabled}}
+      <td>{{tag-chooser tags=editingFilter.tags placeholderKey="gitter.choose.tags"}}</td>
+    {{/if}}
+
+    <td>{{combo-box content=filters value=editingFilter.filter}}</td>
+
+    <td>
+      {{d-button
+        action="saveFilter"
+        icon="save"
+        class="save btn-primary"
+        title="save"}}
+    </td>
+  </tr>
+</table>
