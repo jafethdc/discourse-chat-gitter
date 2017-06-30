@@ -1,8 +1,8 @@
 en:
   js:
     gitter:
-      title: "Gitter"
-      show: "Gitter configuration"
+      title: 'Gitter'
+      show: 'Gitter configuration'
       delete: 'Delete'
       present:
         mute: 'Muting'
@@ -18,5 +18,7 @@ en:
         filter: 'Choose a filter'
         tags: 'Choose tags'
         channel: '#channel, @user or Channel ID'
-
-
+        room: 'Room name'
+        room_id: 'Room id'
+        webhook: 'Room webhook'
+      save_integration: 'Save integration'

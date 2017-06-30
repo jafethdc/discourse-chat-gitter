@@ -5,4 +5,5 @@ Gitter::Engine.routes.draw do
   delete 'filter_rules' => 'filter_rules#delete', constraints: AdminConstraint.new
 
   get 'integrations' => 'integrations#index', constraints: AdminConstraint.new
+  post 'integrations' => 'integrations#create', constraints: AdminConstraint.new
 end

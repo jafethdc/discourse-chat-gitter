@@ -4,7 +4,11 @@ import { popupAjaxError } from 'discourse/lib/ajax-error';
 
 export default Ember.Component.extend({
   classNames: ['integration-item'],
-  editingFilter: FilterRule.create({}),
+
+  init(){
+    this._super();
+      this.set('editingFilter', FilterRule.create({}));
+  },
 
   didInsertElement(){
     // debugger;

@@ -20,10 +20,13 @@ after_initialize do
   gitter_require 'routes/discourse'
   gitter_require 'controllers/filter_rules_controller'
   gitter_require 'controllers/integrations_controller'
+  gitter_require 'lib/gitter'
+  gitter_require 'jobs/regular/notify_gitter'
+
+  DiscourseEvent.on(:post_created) do |post|
+    if SiteSetting.gitter_enabled?
+      Jobs.enqueue_in(1, :notify_gitter, post_id: post.id)
+    end
+  end
 end
 
-=begin
-Discourse::Application.routes.append do
-  get '/admin/plugins/gitter' => 'admin/plugins#index', constraints: StaffConstraint.new
-end
-=end
