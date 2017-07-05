@@ -39,4 +39,9 @@ class ::DiscourseGitter::IntegrationsController < ::ApplicationController
     DiscourseGitter::Gitter.delete_integration(params[:room])
     render json: success_json
   end
+
+  def test_notification
+    DiscourseGitter::Gitter.test_notification(params[:room])
+    render json: success_json
+  end
 end

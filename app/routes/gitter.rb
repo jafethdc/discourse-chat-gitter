@@ -7,4 +7,5 @@ DiscourseGitter::Engine.routes.draw do
   get 'integrations' => 'integrations#index', constraints: AdminConstraint.new
   post 'integrations' => 'integrations#create', constraints: AdminConstraint.new
   delete 'integrations' => 'integrations#delete', constraints: AdminConstraint.new
+  put 'test_notification' => 'integrations#test_notification', constraints: AdminConstraint.new
 end

@@ -5,6 +5,8 @@ import { popupAjaxError } from 'discourse/lib/ajax-error';
 export default Ember.Component.extend({
   classNames: ['integration-item'],
 
+  testingNotification: false,
+
   init(){
     this._super();
       this.set('editingFilter', FilterRule.create({}));
@@ -38,6 +40,17 @@ export default Ember.Component.extend({
 
     deleteIntegration(){
       this.get('onDelete')(this.get('integration'));
+    },
+
+    testNotification(){
+      this.set('testingNotification', true);
+
+      ajax('/gitter/test_notification.json', {
+        method: 'PUT',
+        data: this.get('integration').getProperties('room')
+      }).catch(popupAjaxError).finally(() => {
+        this.set('testingNotification', false);
+      });
     }
   }
 });

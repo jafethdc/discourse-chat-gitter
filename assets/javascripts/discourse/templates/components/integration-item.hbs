@@ -1,11 +1,5 @@
-<h2>Room: {{integration.room}}</h2>
+<h3>Room: {{integration.room}}</h3>
 <h3>Webhook: {{integration.webhook}}</h3>
-{{d-button
-  action="deleteIntegration"
-  icon="trash-o"
-  class="delete btn-danger"
-  label="gitter.delete_integration"
-  title="delete"}}
 
 <table>
   <tr>
@@ -27,7 +21,7 @@
 
       <td>{{filter.filterName}}</td>
       <td>
-        {{d-button action="deleteFilter" actionParam=filter icon="trash-o" class="delete btn-danger" title="gitter.delete"}}
+        {{d-button action="deleteFilter" actionParam=filter icon="trash-o" class="delete btn-danger" title="gitter.delete_rule"}}
       </td>
     </tr>
   {{/each}}
@@ -51,7 +45,22 @@
         action="saveFilter"
         icon="save"
         class="save btn-primary"
-        title="save"}}
+        title="gitter.save_rule"}}
     </td>
   </tr>
 </table>
+
+<div class="integration-controls">
+  {{d-button
+    action="testNotification"
+    icon="rocket"
+    label="gitter.test_notification"
+    disabled=testingNotification}}
+
+  {{d-button
+    action="deleteIntegration"
+    icon="trash-o"
+    class="delete btn-danger"
+    label="gitter.delete_integration"}}
+</div>
+

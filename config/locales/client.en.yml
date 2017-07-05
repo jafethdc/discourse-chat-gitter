@@ -2,7 +2,6 @@ en:
   js:
     gitter:
       title: 'Gitter'
-      show: 'Gitter configuration'
       delete: 'Delete'
       present:
         mute: 'Muting'
@@ -14,12 +13,12 @@ en:
         watch: 'Notify of all posts and replies'
       choose:
         all_categories: 'All categories'
-        deleted_category: 'Deleted category'
-        filter: 'Choose a filter'
         tags: 'Choose tags'
-        channel: '#channel, @user or Channel ID'
         room: 'Room name'
         room_id: 'Room id'
         webhook: 'Room webhook'
+      delete_rule: 'Delete rule'
+      save_rule: 'Save rule'
       save_integration: 'Save integration'
       delete_integration: 'Delete integration'
+      test_notification: 'Test notification'

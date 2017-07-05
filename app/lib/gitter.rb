@@ -93,5 +93,19 @@ module DiscourseGitter
         row.update(value: cleared_filters.to_json)
       end
     end
+
+    def self.test_notification(room)
+      integration = PluginStore.get(DiscourseGitter::PLUGIN_NAME, "integration_#{room}")
+
+      uri = URI.parse(integration[:webhook])
+      message = "This is a test notification from __#{SiteSetting.title}__!"
+
+      begin
+        response = Net::HTTP.post_form(uri, message: message)
+        response.body == 'OK'
+      rescue TypeError
+        false
+      end
+    end
   end
 end
