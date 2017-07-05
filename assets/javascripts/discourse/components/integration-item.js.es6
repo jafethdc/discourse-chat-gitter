@@ -34,6 +34,10 @@ export default Ember.Component.extend({
         this.get('integration.filters').pushObject(FilterRule.create(data));
         this.set('editingFilter', FilterRule.create({}));
       }).catch(popupAjaxError);
+    },
+
+    deleteIntegration(){
+      this.get('onDelete')(this.get('integration'));
     }
   }
 });

@@ -134,4 +134,26 @@ RSpec.describe DiscourseGitter::Gitter do
       expect(rules.index { |r| r[:room] == integration[:room] && r[:filter] == 'follow' }).to be_nil
     end
   end
+
+  describe '.delete_integration' do
+    let(:category2) { Fabricate(:category) }
+    before(:each) do
+      DiscourseGitter::Gitter.set_filter(category.id, integration[:room], 'follow')
+      DiscourseGitter::Gitter.set_filter(category2.id, integration[:room], 'watch')
+      DiscourseGitter::Gitter.set_filter(nil, integration[:room], 'follow')
+    end
+
+    it 'deletes the integration' do
+      DiscourseGitter::Gitter.delete_integration(integration[:room])
+      expect(PluginStore.get(DiscourseGitter::PLUGIN_NAME, "integration_#{integration[:room]}")).to be_nil
+    end
+
+    it 'deletes the integrations rules' do
+      DiscourseGitter::Gitter.delete_integration(integration[:room])
+      integration_rules = PluginStoreRow.where(plugin_name: DiscourseGitter::PLUGIN_NAME).where('key LIKE ?', 'category_%').inject(0) do |sum, row|
+        sum + PluginStore.cast_value(row.type_name, row.value).count { |rule| rule[:room] == integration[:room] }
+      end
+      expect(integration_rules).to eq(0)
+    end
+  end
 end

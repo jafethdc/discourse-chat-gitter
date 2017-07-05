@@ -2,7 +2,9 @@
   <h1>Integrations</h1>
 
   {{#each model as |integration|}}
-    {{integration-item integration=integration filters=filters}}
+    {{integration-item integration=integration
+                       filters=filters
+                       onDelete=(action "deleteIntegration")}}
   {{/each}}
 
   <div class="new-integration">

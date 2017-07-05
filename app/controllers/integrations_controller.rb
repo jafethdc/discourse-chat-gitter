@@ -34,4 +34,9 @@ class ::DiscourseGitter::IntegrationsController < ::ApplicationController
     DiscourseGitter::Gitter.set_integration(integration_params[:room], integration_params[:room_id], integration_params[:webhook])
     render json: success_json
   end
+
+  def delete
+    DiscourseGitter::Gitter.delete_integration(params[:room])
+    render json: success_json
+  end
 end

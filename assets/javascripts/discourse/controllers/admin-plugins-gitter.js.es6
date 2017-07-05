@@ -31,6 +31,15 @@ export default Ember.Controller.extend({
         this.get('model').pushObject(this.get('editingIntegration'));
         this.set('editingIntegration', Integration.create({}));
       }).catch(popupAjaxError);
+    },
+
+    deleteIntegration(integration){
+      ajax('/gitter/integrations.json', {
+        method: 'DELETE',
+        data: integration.getProperties('room')
+      }).then(() => {
+        this.get('model').removeObject(integration);
+      }).catch(popupAjaxError);
     }
   }
 });

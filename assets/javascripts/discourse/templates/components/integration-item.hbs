@@ -1,5 +1,11 @@
 <h2>Room: {{integration.room}}</h2>
 <h3>Webhook: {{integration.webhook}}</h3>
+{{d-button
+  action="deleteIntegration"
+  icon="trash-o"
+  class="delete btn-danger"
+  label="gitter.delete_integration"
+  title="delete"}}
 
 <table>
   <tr>

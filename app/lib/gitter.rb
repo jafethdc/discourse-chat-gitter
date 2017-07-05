@@ -85,5 +85,13 @@ module DiscourseGitter
       saved = PluginStore.set(DiscourseGitter::PLUGIN_NAME, "integration_#{integration[:room]}", integration.slice(:room_id, :webhook))
       saved ? integration : nil
     end
+
+    def self.delete_integration(room)
+      PluginStore.remove(DiscourseGitter::PLUGIN_NAME, "integration_#{room}")
+      PluginStoreRow.where(plugin_name: DiscourseGitter::PLUGIN_NAME).where('key LIKE ?', 'category_%').each do |row|
+        cleared_filters = PluginStore.cast_value(row.type_name, row.value).reject { |rule| rule[:room] == room }
+        row.update(value: cleared_filters.to_json)
+      end
+    end
   end
 end
