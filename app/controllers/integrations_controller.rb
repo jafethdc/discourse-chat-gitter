@@ -1,9 +1,9 @@
-class ::Gitter::IntegrationsController < ::ApplicationController
-  requires_plugin Gitter::PLUGIN_NAME
+class ::DiscourseGitter::IntegrationsController < ::ApplicationController
+  requires_plugin DiscourseGitter::PLUGIN_NAME
 
   def index
     integrations = {}
-    PluginStoreRow.where(plugin_name: Gitter::PLUGIN_NAME).where('key LIKE ?', 'integration_%').each do |row|
+    PluginStoreRow.where(plugin_name: DiscourseGitter::PLUGIN_NAME).where('key LIKE ?', 'integration_%').each do |row|
       integration = PluginStore.cast_value(row.type_name, row.value)
       room = row.key.gsub('integration_', '')
       integrations[room] = {
@@ -14,7 +14,7 @@ class ::Gitter::IntegrationsController < ::ApplicationController
       }
     end
 
-    PluginStoreRow.where(plugin_name: Gitter::PLUGIN_NAME).where('key LIKE ?', 'category_%').each do |row|
+    PluginStoreRow.where(plugin_name: DiscourseGitter::PLUGIN_NAME).where('key LIKE ?', 'category_%').each do |row|
       PluginStore.cast_value(row.type_name, row.value).each do |filter|
         category_id = row.key == 'category_*' ? nil : row.key.gsub('category_', '')
         integrations[filter[:room]][:filters] << {
@@ -31,9 +31,7 @@ class ::Gitter::IntegrationsController < ::ApplicationController
 
   def create
     integration_params = params.permit(:room, :room_id, :webhook)
-    integration = { room_id: integration_params[:room_id], webhook: integration_params[:webhook] }
-    PluginStore.set(Gitter::PLUGIN_NAME, "integration_#{integration_params[:room]}", integration)
-
+    DiscourseGitter::Gitter.set_integration(integration_params[:room], integration_params[:room_id], integration_params[:webhook])
     render json: success_json
   end
 end
