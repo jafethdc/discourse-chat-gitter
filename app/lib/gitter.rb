@@ -5,14 +5,23 @@ module DiscourseGitter
       tag_names = Tag.where(name: tags).pluck(:name)
 
       index = category_filters.index do |rule|
-        rule['room'] == room && (rule['tags'] - tag_names).blank?
+        if rule['tags'].blank?
+          tag_names.blank?
+        else
+          next if tag_names.blank?
+          if (rule['tags'] - tag_names).blank?
+            true
+          else
+            (tag_names - rule['tags']).blank? ? return : next
+          end
+        end
       end
 
       if index
         category_filters[index]['filter'] = filter
-        category_filters[index]['tags'] = category_filters[index]['tags'].concat(tags).uniq
+        category_filters[index]['tags'] = category_filters[index]['tags'].concat(tag_names).uniq
       else
-        category_filters.push(room: room, filter: filter, tags: tags)
+        category_filters.push(room: room, filter: filter, tags: tag_names)
       end
 
       PluginStore.set(DiscourseGitter::PLUGIN_NAME, category_filters_row_key(category_id), category_filters)

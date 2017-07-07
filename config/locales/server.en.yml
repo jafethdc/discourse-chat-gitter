@@ -1,3 +1,5 @@
 en:
   site_settings:
     gitter_enabled: "Will this plugin use gitter?"
+    gitter_notification_delay: 'Wait (n) seconds before posting to slack, to give users a chance to edit and finalize their posts.'
+

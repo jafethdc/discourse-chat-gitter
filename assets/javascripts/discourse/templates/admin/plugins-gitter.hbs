@@ -9,8 +9,8 @@
 
   <div class="new-integration">
     <h3>New integration</h3>
-    <div>Room: {{text-field value=editingIntegration.room placeholderKey="gitter.choose.room" class="channel"}}</div>
-    <div>Webhook: {{text-field value=editingIntegration.webhook placeholderKey="gitter.choose.webhook" class="channel"}}</div>
+    <div>{{text-field value=editingIntegration.room placeholderKey="gitter.choose.room" class="channel"}}</div>
+    <div>{{text-field value=editingIntegration.webhook placeholderKey="gitter.choose.webhook" class="channel"}}</div>
     <div>
       {{d-button
         action="saveIntegration"
