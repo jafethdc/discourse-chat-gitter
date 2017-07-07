@@ -9,7 +9,6 @@ export default Discourse.Route.extend({
         integration.filters = integration.filters.map(filter => {
           return FilterRule.create(filter);
         });
-        console.log('integration', integration);
         return Integration.create(integration);
       });
     });

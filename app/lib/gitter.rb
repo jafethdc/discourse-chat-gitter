@@ -18,9 +18,9 @@ module DiscourseGitter
       PluginStore.set(DiscourseGitter::PLUGIN_NAME, category_filters_row_key(category_id), category_filters)
     end
 
-    def self.delete_filter(category_id, room, filter, tags = [])
+    def self.delete_filter(category_id, room, filter, tags)
       category_filters = get_filters(category_id)
-      category_filters.delete_at(category_filters.index({ room: room, filter: filter, tags: tags }.stringify_keys))
+      category_filters.delete_at(category_filters.index({ room: room, filter: filter, tags: tags || [] }.stringify_keys))
       PluginStore.set(DiscourseGitter::PLUGIN_NAME, category_filters_row_key(category_id), category_filters)
     end
 

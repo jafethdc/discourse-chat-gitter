@@ -129,7 +129,7 @@ RSpec.describe DiscourseGitter::Gitter do
     end
 
     it 'deletes the filter' do
-      DiscourseGitter::Gitter.delete_filter(category.id, integration[:room], 'follow')
+      DiscourseGitter::Gitter.delete_filter(category.id, integration[:room], 'follow', nil)
       rules = DiscourseGitter::Gitter.get_filters(category.id)
       expect(rules.index { |r| r[:room] == integration[:room] && r[:filter] == 'follow' }).to be_nil
     end

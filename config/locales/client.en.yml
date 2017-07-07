@@ -14,7 +14,7 @@ en:
       choose:
         all_categories: 'All categories'
         tags: 'Choose tags'
-        room: 'Room name'
+        room: 'Room name e.g. gitterHQ/services'
         room_id: 'Room id'
         webhook: 'Room webhook'
       delete_rule: 'Delete rule'
