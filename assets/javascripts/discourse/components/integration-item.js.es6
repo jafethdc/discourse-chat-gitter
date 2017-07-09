@@ -9,11 +9,15 @@ export default Ember.Component.extend({
 
   init(){
     this._super();
-      this.set('editingFilter', FilterRule.create({}));
+    this.set('editingFilter', FilterRule.create({}));
   },
 
-  didInsertElement(){
-    // debugger;
+  arrayDiff(array1, array2){
+    return array1.filter(x => array2.indexOf(x) < 0);
+  },
+
+  arrayUniq(array){
+    return array.filter((v, i, a) => a.indexOf(v) === i);
   },
 
   actions: {
@@ -33,7 +37,38 @@ export default Ember.Component.extend({
         method: 'POST',
         data: data
       }).then(() => {
-        this.get('integration.filters').pushObject(FilterRule.create(data));
+        let overridingRule = null;
+        const editingRule = this.get('editingFilter');
+        for(let i=0; i<this.get('integration.filters.length'); i++){
+          let rule = this.get('integration.filters').objectAt(i);
+          if(rule.get('categoryName') !== editingRule.get('categoryName')) continue;
+
+          if(rule.get('tags.length') === 0){
+            if(editingRule.get('tags.length') === 0){
+              overridingRule = rule;
+              break;
+            }
+          }else{
+            if(editingRule.get('tags.length') === 0) continue;
+            if(this.arrayDiff(rule.get('tags'), editingRule.get('tags')).length === 0){
+              overridingRule = rule;
+              break;
+            }else{
+              if(this.arrayDiff(editingRule.get('tags'), rule.get('tags')).length === 0){
+                this.set('editingFilter', FilterRule.create({}));
+                return;
+              }
+            }
+          }
+        }
+
+        if(overridingRule !== null){
+          overridingRule.set('filter', editingRule.get('filter'));
+          overridingRule.set('tags', this.arrayUniq(overridingRule.get('tags').concat(editingRule.get('tags'))));
+        }else{
+          this.get('integration.filters').pushObject(FilterRule.create(data));
+        }
+
         this.set('editingFilter', FilterRule.create({}));
       }).catch(popupAjaxError);
     },

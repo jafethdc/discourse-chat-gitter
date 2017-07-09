@@ -6,13 +6,17 @@ module DiscourseGitter
 
       index = category_filters.index do |rule|
         if rule['tags'].blank?
-          tag_names.blank?
+          tag_names.blank? && rule[:room] == room
         else
           next if tag_names.blank?
           if (rule['tags'] - tag_names).blank?
-            true
+            rule[:room] == room
           else
-            (tag_names - rule['tags']).blank? ? return : next
+            if (tag_names - rule['tags']).blank?
+              rule[:room] == room ? return : next
+            else
+              next
+            end
           end
         end
       end

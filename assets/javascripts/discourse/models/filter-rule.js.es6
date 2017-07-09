@@ -7,6 +7,13 @@ export default RestModel.extend({
   room: '',
   filter: null,
 
+  init(){
+    this._super();
+    if(typeof this.get('tags') === 'undefined'){
+      this.set('tags', []);
+    }
+  },
+
   @computed('category_id')
   categoryName(categoryId) {
     if (categoryId)
