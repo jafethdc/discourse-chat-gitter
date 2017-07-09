@@ -1,5 +1,5 @@
 <div class="admin-plugin-gitter">
-  <h1>Integrations</h1>
+  <h1>{{i18n "gitter.integrations"}}</h1>
 
   {{#each model as |integration|}}
     {{integration-item integration=integration
@@ -8,7 +8,7 @@
   {{/each}}
 
   <div class="new-integration">
-    <h3>New integration</h3>
+    <h3>{{i18n "gitter.new_integration"}}</h3>
     <div>{{text-field value=editingIntegration.room placeholderKey="gitter.choose.room" class="channel"}}</div>
     <div>{{text-field value=editingIntegration.webhook placeholderKey="gitter.choose.webhook" class="channel"}}</div>
     <div>

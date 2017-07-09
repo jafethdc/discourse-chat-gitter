@@ -1,13 +1,13 @@
-<h3>Room: {{integration.room}}</h3>
-<h3>Webhook: {{integration.webhook}}</h3>
+<h3>{{i18n "gitter.room"}}: {{integration.room}}</h3>
+<h3>{{i18n "gitter.webhook"}}: {{integration.webhook}}</h3>
 
 <table>
   <tr>
-    <th>Category id</th>
+    <th>{{i18n "gitter.category"}}</th>
     {{#if siteSettings.tagging_enabled}}
-      <th>Tags</th>
+      <th>{{i18n "gitter.tags"}}</th>
     {{/if}}
-    <th>Filter</th>
+    <th>{{i18n "gitter.filter"}}</th>
     <th></th>
   </tr>
 
