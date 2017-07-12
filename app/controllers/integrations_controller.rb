@@ -10,18 +10,18 @@ class ::DiscourseGitter::IntegrationsController < ::ApplicationController
         room: room,
         room_id: integration[:room_id],
         webhook: integration[:webhook],
-        filters: []
+        rules: []
       }
     end
 
     PluginStoreRow.where(plugin_name: DiscourseGitter::PLUGIN_NAME).where('key LIKE ?', 'category_%').each do |row|
-      PluginStore.cast_value(row.type_name, row.value).each do |filter|
+      PluginStore.cast_value(row.type_name, row.value).each do |rule|
         category_id = row.key == 'category_*' ? nil : row.key.gsub('category_', '')
-        integrations[filter[:room]][:filters] << {
+        integrations[rule[:room]][:rules] << {
           category_id: category_id,
-          room: filter[:room],
-          filter: filter[:filter],
-          tags: filter[:tags]
+          room: rule[:room],
+          filter: rule[:filter],
+          tags: rule[:tags]
         }
       end
     end

@@ -30,7 +30,7 @@ describe 'Gitter', type: :request do
     include_examples 'admin constraints', :get, '/gitter/integrations.json'
 
     before do
-      DiscourseGitter::Gitter.set_filter(topic.category.id, integration[:room], 'follow')
+      DiscourseGitter::Gitter.set_rule(topic.category.id, integration[:room], 'follow')
     end
 
     context 'as an admin' do
@@ -55,7 +55,7 @@ describe 'Gitter', type: :request do
         post '/gitter/integrations.json', room: 'aroom', room_id: 'aroomid', webhook: 'awebhook'
         expect(JSON.parse(response.body)).to eq('success' => 'OK')
 
-        integrations = DiscourseGitter::Gitter.get_room('aroom')
+        integrations = DiscourseGitter::Gitter.get_integration('aroom')
         expect(integrations).not_to be_nil
       end
     end
@@ -65,7 +65,7 @@ describe 'Gitter', type: :request do
     include_examples 'admin constraints', :delete, '/gitter/integrations.json'
 
     before do
-      DiscourseGitter::Gitter.set_filter(topic.category.id, integration[:room], 'follow')
+      DiscourseGitter::Gitter.set_rule(topic.category.id, integration[:room], 'follow')
     end
 
     context 'as an admin' do
@@ -93,7 +93,7 @@ describe 'Gitter', type: :request do
         post '/gitter/filter_rules.json', filter_data
         expect(JSON.parse(response.body)).to eq('success' => 'OK')
 
-        filters = DiscourseGitter::Gitter.get_filters(category.id)
+        filters = DiscourseGitter::Gitter.get_rules(category.id)
         expect(filters.index(filter_data.except(:category_id).stringify_keys)).not_to be_nil
       end
     end
@@ -103,7 +103,7 @@ describe 'Gitter', type: :request do
     include_examples 'admin constraints', :post, '/gitter/filter_rules.json'
 
     before do
-      DiscourseGitter::Gitter.set_filter(topic.category.id, integration[:room], 'follow')
+      DiscourseGitter::Gitter.set_rule(topic.category.id, integration[:room], 'follow')
     end
 
     context 'as an admin' do
@@ -114,7 +114,7 @@ describe 'Gitter', type: :request do
         delete '/gitter/filter_rules.json', filter_data
         expect(JSON.parse(response.body)).to eq('success' => 'OK')
 
-        filters = DiscourseGitter::Gitter.get_filters(category.id)
+        filters = DiscourseGitter::Gitter.get_rules(category.id)
         expect(filters.index(filter_data.except(:category_id).stringify_keys)).to be_nil
       end
     end

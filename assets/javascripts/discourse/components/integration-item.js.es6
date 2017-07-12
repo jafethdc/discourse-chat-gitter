@@ -9,7 +9,7 @@ export default Ember.Component.extend({
 
   init(){
     this._super();
-    this.set('editingFilter', FilterRule.create({}));
+    this.set('editingRule', FilterRule.create({}));
   },
 
   arrayDiff(array1, array2){
@@ -21,26 +21,26 @@ export default Ember.Component.extend({
   },
 
   actions: {
-    deleteFilter(filter){
+    deleteRule(rule){
       ajax('/gitter/filter_rules.json', {
         method: 'DELETE',
-        data: filter.getProperties('category_id', 'filter', 'room', 'tags')
+        data: rule.getProperties('category_id', 'filter', 'room', 'tags')
       }).then(()=>{
-        this.get('integration.filters').removeObject(filter);
+        this.get('integration.rules').removeObject(rule);
       }).catch(popupAjaxError);
     },
 
-    saveFilter(){
-      const data = Object.assign(this.get('editingFilter').getProperties('filter', 'category_id', 'tags'),
+    saveRule(){
+      const data = Object.assign(this.get('editingRule').getProperties('filter', 'category_id', 'tags'),
                                  this.get('integration').getProperties('room'));
       ajax('/gitter/filter_rules.json', {
         method: 'POST',
         data: data
       }).then(() => {
         let overridingRule = null;
-        const editingRule = this.get('editingFilter');
-        for(let i=0; i<this.get('integration.filters.length'); i++){
-          let rule = this.get('integration.filters').objectAt(i);
+        const editingRule = this.get('editingRule');
+        for(let i=0; i<this.get('integration.rules.length'); i++){
+          let rule = this.get('integration.rules').objectAt(i);
           if(rule.get('categoryName') !== editingRule.get('categoryName')) continue;
 
           if(rule.get('tags.length') === 0){
@@ -55,7 +55,7 @@ export default Ember.Component.extend({
               break;
             }else{
               if(this.arrayDiff(editingRule.get('tags'), rule.get('tags')).length === 0){
-                this.set('editingFilter', FilterRule.create({}));
+                this.set('editingRule', FilterRule.create({}));
                 return;
               }
             }
@@ -66,10 +66,10 @@ export default Ember.Component.extend({
           overridingRule.set('filter', editingRule.get('filter'));
           overridingRule.set('tags', this.arrayUniq(overridingRule.get('tags').concat(editingRule.get('tags'))));
         }else{
-          this.get('integration.filters').pushObject(FilterRule.create(data));
+          this.get('integration.rules').pushObject(FilterRule.create(data));
         }
 
-        this.set('editingFilter', FilterRule.create({}));
+        this.set('editingRule', FilterRule.create({}));
       }).catch(popupAjaxError);
     },
 

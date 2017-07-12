@@ -18,7 +18,7 @@ RSpec.describe DiscourseGitter::Gitter do
 
     context 'when a filter is mute' do
       before(:each) do
-        DiscourseGitter::Gitter.set_filter(topic.category.id, integration[:room], 'mute')
+        DiscourseGitter::Gitter.set_rule(topic.category.id, integration[:room], 'mute')
       end
 
       let(:post) { Fabricate(:post, topic: topic) }
@@ -35,7 +35,7 @@ RSpec.describe DiscourseGitter::Gitter do
 
       context 'when filter is follow' do
         before(:each) do
-          DiscourseGitter::Gitter.set_filter(topic.category.id, integration[:room], 'follow')
+          DiscourseGitter::Gitter.set_rule(topic.category.id, integration[:room], 'follow')
         end
 
         it 'does not notify' do
@@ -46,7 +46,7 @@ RSpec.describe DiscourseGitter::Gitter do
 
       context 'when filter is watch' do
         before(:each) do
-          DiscourseGitter::Gitter.set_filter(topic.category.id, integration[:room], 'watch')
+          DiscourseGitter::Gitter.set_rule(topic.category.id, integration[:room], 'watch')
         end
 
         it 'does notify' do
@@ -58,7 +58,7 @@ RSpec.describe DiscourseGitter::Gitter do
 
     context 'when category is all' do
       before(:each) do
-        DiscourseGitter::Gitter.set_filter(nil, integration[:room], 'watch')
+        DiscourseGitter::Gitter.set_rule(nil, integration[:room], 'watch')
       end
 
       it 'notifies any guardian-visible post' do
@@ -98,12 +98,12 @@ RSpec.describe DiscourseGitter::Gitter do
 
     context 'when case 1' do
       before(:each) do
-        DiscourseGitter::Gitter.set_filter(category.id, integration[:room], 'follow')
+        DiscourseGitter::Gitter.set_rule(category.id, integration[:room], 'follow')
       end
 
       it 'overrides the existent rule' do
-        DiscourseGitter::Gitter.set_filter(category.id, integration[:room], 'watch')
-        rules = DiscourseGitter::Gitter.get_filters(category.id)
+        DiscourseGitter::Gitter.set_rule(category.id, integration[:room], 'watch')
+        rules = DiscourseGitter::Gitter.get_rules(category.id)
         expect(rules.count { |r| r[:room] == integration[:room] }).to eq(1)
         expect(rules.index { |r| r[:room] == integration[:room] && r[:filter] == 'watch' }).not_to be_nil
       end
@@ -111,12 +111,12 @@ RSpec.describe DiscourseGitter::Gitter do
 
     context 'when case 2' do
       before(:each) do
-        DiscourseGitter::Gitter.set_filter(category.id, integration[:room], 'follow', tag_names)
+        DiscourseGitter::Gitter.set_rule(category.id, integration[:room], 'follow', tag_names)
       end
 
       it 'creates a new rule' do
-        DiscourseGitter::Gitter.set_filter(category.id, integration[:room], 'follow')
-        rules = DiscourseGitter::Gitter.get_filters(category.id)
+        DiscourseGitter::Gitter.set_rule(category.id, integration[:room], 'follow')
+        rules = DiscourseGitter::Gitter.get_rules(category.id)
         expect(rules.count { |r| r[:room] == integration[:room] }).to eq(2)
         expect(rules.count { |r| r[:room] == integration[:room] && r[:tags] == [] }).to eq(1)
       end
@@ -124,12 +124,12 @@ RSpec.describe DiscourseGitter::Gitter do
 
     context 'when case 3' do
       before(:each) do
-        DiscourseGitter::Gitter.set_filter(category.id, integration[:room], 'follow')
+        DiscourseGitter::Gitter.set_rule(category.id, integration[:room], 'follow')
       end
 
       it 'creates a new rule' do
-        DiscourseGitter::Gitter.set_filter(category.id, integration[:room], 'follow', tag_names)
-        rules = DiscourseGitter::Gitter.get_filters(category.id)
+        DiscourseGitter::Gitter.set_rule(category.id, integration[:room], 'follow', tag_names)
+        rules = DiscourseGitter::Gitter.get_rules(category.id)
         expect(rules.count { |r| r[:room] == integration[:room] }).to eq(2)
         expect(rules.count { |r| r[:room] == integration[:room] && r[:tags] == tag_names }).to eq(1)
       end
@@ -137,12 +137,12 @@ RSpec.describe DiscourseGitter::Gitter do
 
     context 'when case 4' do
       before(:each) do
-        DiscourseGitter::Gitter.set_filter(category.id, integration[:room], 'follow', tag_names)
+        DiscourseGitter::Gitter.set_rule(category.id, integration[:room], 'follow', tag_names)
       end
 
       it 'neither creates or modifies a rule' do
-        DiscourseGitter::Gitter.set_filter(category.id, integration[:room], 'watch', tag_names[0..1])
-        rules = DiscourseGitter::Gitter.get_filters(category.id)
+        DiscourseGitter::Gitter.set_rule(category.id, integration[:room], 'watch', tag_names[0..1])
+        rules = DiscourseGitter::Gitter.get_rules(category.id)
         expect(rules.count { |r| r[:room] == integration[:room] }).to eq(1)
         expect(rules.count { |r| r[:room] == integration[:room] && r[:filter] == 'follow' }).to eq(1)
       end
@@ -150,12 +150,12 @@ RSpec.describe DiscourseGitter::Gitter do
 
     context 'when case 5' do
       before(:each) do
-        DiscourseGitter::Gitter.set_filter(category.id, integration[:room], 'follow', tag_names[0..1])
+        DiscourseGitter::Gitter.set_rule(category.id, integration[:room], 'follow', tag_names[0..1])
       end
 
       it 'overrides the rule' do
-        DiscourseGitter::Gitter.set_filter(category.id, integration[:room], 'watch', tag_names)
-        rules = DiscourseGitter::Gitter.get_filters(category.id)
+        DiscourseGitter::Gitter.set_rule(category.id, integration[:room], 'watch', tag_names)
+        rules = DiscourseGitter::Gitter.get_rules(category.id)
         expect(rules.count { |r| r[:room] == integration[:room] }).to eq(1)
         expect(rules.count { |r| r[:room] == integration[:room] && r[:tags] == tag_names && r[:filter] == 'watch' }).to eq(1)
       end
@@ -163,12 +163,12 @@ RSpec.describe DiscourseGitter::Gitter do
 
     context 'when case 6' do
       before(:each) do
-        DiscourseGitter::Gitter.set_filter(category.id, integration[:room], 'follow', tag_names)
+        DiscourseGitter::Gitter.set_rule(category.id, integration[:room], 'follow', tag_names)
       end
 
       it 'overrides the rule' do
-        DiscourseGitter::Gitter.set_filter(category.id, integration[:room], 'watch', tag_names)
-        rules = DiscourseGitter::Gitter.get_filters(category.id)
+        DiscourseGitter::Gitter.set_rule(category.id, integration[:room], 'watch', tag_names)
+        rules = DiscourseGitter::Gitter.get_rules(category.id)
         expect(rules.count { |r| r[:room] == integration[:room] && r[:tags] == tag_names }).to eq(1)
         expect(rules.count { |r| r[:room] == integration[:room] && r[:tags] == tag_names && r[:filter] == 'watch' }).to eq(1)
       end
@@ -176,12 +176,12 @@ RSpec.describe DiscourseGitter::Gitter do
 
     context 'when case 7' do
       before(:each) do
-        DiscourseGitter::Gitter.set_filter(category.id, integration[:room], 'follow', tag_names[0..1])
+        DiscourseGitter::Gitter.set_rule(category.id, integration[:room], 'follow', tag_names[0..1])
       end
 
       it 'creates a new rule' do
-        DiscourseGitter::Gitter.set_filter(category.id, integration[:room], 'watch', tag_names[1..2])
-        rules = DiscourseGitter::Gitter.get_filters(category.id)
+        DiscourseGitter::Gitter.set_rule(category.id, integration[:room], 'watch', tag_names[1..2])
+        rules = DiscourseGitter::Gitter.get_rules(category.id)
         expect(rules.count { |r| r[:room] == integration[:room] }).to eq(2)
         expect(rules.count { |r| r[:room] == integration[:room] && r[:tags] == tag_names[1..2] }).to eq(1)
       end
@@ -190,12 +190,12 @@ RSpec.describe DiscourseGitter::Gitter do
 
   describe '.delete_filter' do
     before(:each) do
-      DiscourseGitter::Gitter.set_filter(category.id, integration[:room], 'follow')
+      DiscourseGitter::Gitter.set_rule(category.id, integration[:room], 'follow')
     end
 
     it 'deletes the filter' do
-      DiscourseGitter::Gitter.delete_filter(category.id, integration[:room], 'follow', nil)
-      rules = DiscourseGitter::Gitter.get_filters(category.id)
+      DiscourseGitter::Gitter.delete_rule(category.id, integration[:room], 'follow', nil)
+      rules = DiscourseGitter::Gitter.get_rules(category.id)
       expect(rules.index { |r| r[:room] == integration[:room] && r[:filter] == 'follow' }).to be_nil
     end
   end
@@ -203,9 +203,9 @@ RSpec.describe DiscourseGitter::Gitter do
   describe '.delete_integration' do
     let(:category2) { Fabricate(:category) }
     before(:each) do
-      DiscourseGitter::Gitter.set_filter(category.id, integration[:room], 'follow')
-      DiscourseGitter::Gitter.set_filter(category2.id, integration[:room], 'watch')
-      DiscourseGitter::Gitter.set_filter(nil, integration[:room], 'follow')
+      DiscourseGitter::Gitter.set_rule(category.id, integration[:room], 'follow')
+      DiscourseGitter::Gitter.set_rule(category2.id, integration[:room], 'watch')
+      DiscourseGitter::Gitter.set_rule(nil, integration[:room], 'follow')
     end
 
     it 'deletes the integration' do

@@ -1,10 +1,10 @@
 module DiscourseGitter
   class Gitter
-    def self.set_filter(category_id, room, filter, tags = [])
-      category_filters = get_filters(category_id)
+    def self.set_rule(category_id, room, filter, tags = [])
+      category_rules = get_rules(category_id)
       tag_names = Tag.where(name: tags).pluck(:name)
 
-      index = category_filters.index do |rule|
+      index = category_rules.index do |rule|
         if rule['tags'].blank?
           tag_names.blank? && rule[:room] == room
         else
@@ -22,17 +22,17 @@ module DiscourseGitter
       end
 
       if index
-        category_filters[index]['filter'] = filter
-        category_filters[index]['tags'] = category_filters[index]['tags'].concat(tag_names).uniq
+        category_rules[index]['filter'] = filter
+        category_rules[index]['tags'] = category_rules[index]['tags'].concat(tag_names).uniq
       else
-        category_filters.push(room: room, filter: filter, tags: tag_names)
+        category_rules.push(room: room, filter: filter, tags: tag_names)
       end
 
-      PluginStore.set(DiscourseGitter::PLUGIN_NAME, category_filters_row_key(category_id), category_filters)
+      PluginStore.set(DiscourseGitter::PLUGIN_NAME, category_filters_row_key(category_id), category_rules)
     end
 
-    def self.delete_filter(category_id, room, filter, tags)
-      category_filters = get_filters(category_id)
+    def self.delete_rule(category_id, room, filter, tags)
+      category_filters = get_rules(category_id)
       category_filters.delete_at(category_filters.index({ room: room, filter: filter, tags: tags || [] }.stringify_keys))
       PluginStore.set(DiscourseGitter::PLUGIN_NAME, category_filters_row_key(category_id), category_filters)
     end
@@ -45,21 +45,23 @@ module DiscourseGitter
       topic = post.topic
       return if topic.blank? || topic.archetype == Archetype.private_message
 
-      filters = get_filters(topic.category_id) | get_filters
+      rules = get_rules(topic.category_id) | get_rules
 
+      integrations = {}
       notified_rooms = []
 
-      filters.each do |filter|
+      rules.each do |rule|
         topic_tags = SiteSetting.tagging_enabled? && topic.tags.pluck(:name)
 
-        next if SiteSetting.tagging_enabled? && filter[:tags].present? && (topic_tags & filter[:tags]).count.zero?
-        next if (filter[:filter] == 'mute') || (!post.is_first_post? && filter[:filter] == 'follow')
+        next if SiteSetting.tagging_enabled? && rule[:tags].present? && (topic_tags & rule[:tags]).count.zero?
+        next if (rule[:filter] == 'mute') || (!post.is_first_post? && rule[:filter] == 'follow')
 
-        uri = URI.parse(get_room(filter[:room])[:webhook])
+        integration = integrations[rule[:room]] ||= get_integration(rule[:room])
+        uri = URI.parse(integration[:webhook])
 
         begin
           response = Net::HTTP.post_form(uri, message: gitter_message(post))
-          notified_rooms << filter[:room] if response.body == 'OK'
+          notified_rooms << rule[:room] if response.body == 'OK'
         rescue TypeError
           # ignored
         end
@@ -67,7 +69,7 @@ module DiscourseGitter
       notified_rooms
     end
 
-    def self.get_filters(category_id = nil)
+    def self.get_rules(category_id = nil)
       PluginStore.get(DiscourseGitter::PLUGIN_NAME, category_filters_row_key(category_id)) || []
     end
 
@@ -75,9 +77,8 @@ module DiscourseGitter
       "category_#{category_id.present? ? category_id : '*'}"
     end
 
-    def self.get_room(room_uri)
-      @rooms ||= {}
-      @rooms[room_uri] ||= PluginStore.get(DiscourseGitter::PLUGIN_NAME, "integration_#{room_uri}")
+    def self.get_integration(room_uri)
+      PluginStore.get(DiscourseGitter::PLUGIN_NAME, "integration_#{room_uri}")
     end
 
     def self.gitter_message(post)
@@ -102,8 +103,8 @@ module DiscourseGitter
     def self.delete_integration(room)
       PluginStore.remove(DiscourseGitter::PLUGIN_NAME, "integration_#{room}")
       PluginStoreRow.where(plugin_name: DiscourseGitter::PLUGIN_NAME).where('key LIKE ?', 'category_%').each do |row|
-        cleared_filters = PluginStore.cast_value(row.type_name, row.value).reject { |rule| rule[:room] == room }
-        row.update(value: cleared_filters.to_json)
+        cleared_rules= PluginStore.cast_value(row.type_name, row.value).reject { |rule| rule[:room] == room }
+        row.update(value: cleared_rules.to_json)
       end
     end
 

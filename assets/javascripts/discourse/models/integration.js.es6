@@ -7,8 +7,8 @@ export default RestModel.extend({
 
   init(){
     this._super();
-    if(typeof this.get('filters') === 'undefined'){
-      this.set('filters', []);
+    if(typeof this.get('rules') === 'undefined'){
+      this.set('rules', []);
     }
   }
 });

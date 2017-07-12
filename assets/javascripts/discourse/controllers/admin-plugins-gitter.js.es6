@@ -18,11 +18,6 @@ export default Ember.Controller.extend({
   },
 
   actions: {
-    delete(filter){
-      console.log('filter');
-      console.log(filter);
-    },
-
     saveIntegration(){
       ajax('/gitter/integrations.json', {
         method: 'POST',

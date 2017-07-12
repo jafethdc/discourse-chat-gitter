@@ -11,17 +11,17 @@
     <th></th>
   </tr>
 
-  {{#each integration.filters as |filter|}}
+  {{#each integration.rules as |rule|}}
     <tr>
-      <td>{{filter.categoryName}}</td>
+      <td>{{rule.categoryName}}</td>
 
       {{#if siteSettings.tagging_enabled}}
-        <td>{{filter.tags}}</td>
+        <td>{{rule.tags}}</td>
       {{/if}}
 
-      <td>{{filter.filterName}}</td>
+      <td>{{rule.filterName}}</td>
       <td>
-        {{d-button action="deleteFilter" actionParam=filter icon="trash-o" class="delete btn-danger" title="gitter.delete_rule"}}
+        {{d-button action="deleteRule" actionParam=rule icon="trash-o" class="delete btn-danger" title="gitter.delete_rule"}}
       </td>
     </tr>
   {{/each}}
@@ -29,20 +29,20 @@
   <tr class="new-filter">
     <td>
       {{category-chooser
-        value=editingFilter.category_id
+        value=editingRule.category_id
         rootNoneLabel="gitter.choose.all_categories"
         rootNone=true}}
     </td>
 
     {{#if siteSettings.tagging_enabled}}
-      <td>{{tag-chooser tags=editingFilter.tags placeholderKey="gitter.choose.tags"}}</td>
+      <td>{{tag-chooser tags=editingRule.tags placeholderKey="gitter.choose.tags"}}</td>
     {{/if}}
 
-    <td>{{combo-box content=filters value=editingFilter.filter}}</td>
+    <td>{{combo-box content=filters value=editingRule.filter}}</td>
 
     <td>
       {{d-button
-        action="saveFilter"
+        action="saveRule"
         icon="save"
         class="save btn-primary"
         title="gitter.save_rule"}}

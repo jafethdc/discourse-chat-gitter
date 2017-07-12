@@ -6,8 +6,8 @@ export default Discourse.Route.extend({
   model(){
     return ajax("/gitter/integrations.json").then(result => {
       return result.integrations.map(integration => {
-        integration.filters = integration.filters.map(filter => {
-          return FilterRule.create(filter);
+        integration.rules = integration.rules.map(rule => {
+          return FilterRule.create(rule);
         });
         return Integration.create(integration);
       });
