@@ -33,12 +33,14 @@ export default Ember.Component.extend({
     saveRule(){
       const data = Object.assign(this.get('editingRule').getProperties('filter', 'category_id', 'tags'),
                                  this.get('integration').getProperties('room'));
+
       ajax('/gitter/filter_rules.json', {
         method: 'POST',
         data: data
       }).then(() => {
         let overridingRule = null;
         const editingRule = this.get('editingRule');
+        let toDelete = [];
         for(let i=0; i<this.get('integration.rules.length'); i++){
           let rule = this.get('integration.rules').objectAt(i);
           if(rule.get('categoryName') !== editingRule.get('categoryName')) continue;
@@ -51,8 +53,7 @@ export default Ember.Component.extend({
           }else{
             if(editingRule.get('tags.length') === 0) continue;
             if(this.arrayDiff(rule.get('tags'), editingRule.get('tags')).length === 0){
-              overridingRule = rule;
-              break;
+              toDelete.pushObject(rule);
             }else{
               if(this.arrayDiff(editingRule.get('tags'), rule.get('tags')).length === 0){
                 this.set('editingRule', FilterRule.create({}));
@@ -61,6 +62,8 @@ export default Ember.Component.extend({
             }
           }
         }
+
+        toDelete.forEach(rule => { this.get('integration.rules').removeObject(rule); });
 
         if(overridingRule !== null){
           overridingRule.set('filter', editingRule.get('filter'));

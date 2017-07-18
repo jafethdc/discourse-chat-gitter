@@ -9,13 +9,13 @@
 
   <div class="new-integration">
     <h3>{{i18n "gitter.new_integration"}}</h3>
-    <div>{{text-field value=editingIntegration.room placeholderKey="gitter.choose.room" class="channel"}}</div>
-    <div>{{text-field value=editingIntegration.webhook placeholderKey="gitter.choose.webhook" class="channel"}}</div>
+    <div>{{text-field value=editingIntegration.room placeholderKey="gitter.choose.room" class="room"}}</div>
+    <div>{{text-field value=editingIntegration.webhook placeholderKey="gitter.choose.webhook" class="webhook"}}</div>
     <div>
       {{d-button
         action="saveIntegration"
         icon="save"
-        class="save btn-primary"
+        class="save btn-primary save-integration"
         label="gitter.save_integration"
         title="save"
         disabled=integrationSaveDisabled}}

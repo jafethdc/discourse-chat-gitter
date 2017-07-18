@@ -12,7 +12,7 @@
   </tr>
 
   {{#each integration.rules as |rule|}}
-    <tr>
+    <tr class="filter-rule">
       <td>{{rule.categoryName}}</td>
 
       {{#if siteSettings.tagging_enabled}}
@@ -21,7 +21,7 @@
 
       <td>{{rule.filterName}}</td>
       <td>
-        {{d-button action="deleteRule" actionParam=rule icon="trash-o" class="delete btn-danger" title="gitter.delete_rule"}}
+        {{d-button action="deleteRule" actionParam=rule icon="trash-o" class="delete btn-danger delete-rule" title="gitter.delete_rule"}}
       </td>
     </tr>
   {{/each}}
@@ -44,7 +44,7 @@
       {{d-button
         action="saveRule"
         icon="save"
-        class="save btn-primary"
+        class="save btn-primary save-new-rule"
         title="gitter.save_rule"}}
     </td>
   </tr>

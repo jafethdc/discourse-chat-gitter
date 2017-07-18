@@ -159,6 +159,19 @@ RSpec.describe DiscourseGitter::Gitter do
         expect(rules.count { |r| r[:room] == integration[:room] }).to eq(1)
         expect(rules.count { |r| r[:room] == integration[:room] && r[:tags] == tag_names && r[:filter] == 'watch' }).to eq(1)
       end
+
+      context "when the new rule includes several previous rules' tags" do
+        before(:each) do
+          DiscourseGitter::Gitter.set_rule(category.id, integration[:room], 'mute', tag_names[1..2])
+        end
+
+        it 'deletes the previous rules' do
+          DiscourseGitter::Gitter.set_rule(category.id, integration[:room], 'watch', tag_names)
+          rules = DiscourseGitter::Gitter.get_rules(category.id)
+          expect(rules.count { |r| r[:room] == integration[:room] }).to eq(1)
+          expect(rules.count { |r| r[:room] == integration[:room] && r[:tags] == tag_names && r[:filter] == 'watch' }).to eq(1)
+        end
+      end
     end
 
     context 'when case 6' do

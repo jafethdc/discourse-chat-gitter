@@ -4,13 +4,17 @@ module DiscourseGitter
       category_rules = get_rules(category_id)
       tag_names = Tag.where(name: tags).pluck(:name)
 
+      to_delete = []
       index = category_rules.index do |rule|
         if rule['tags'].blank?
           tag_names.blank? && rule[:room] == room
         else
           next if tag_names.blank?
           if (rule['tags'] - tag_names).blank?
-            rule[:room] == room
+            if rule[:room] == room
+              to_delete << rule
+              next
+            end
           else
             if (tag_names - rule['tags']).blank?
               rule[:room] == room ? return : next
@@ -20,6 +24,8 @@ module DiscourseGitter
           end
         end
       end
+
+      category_rules -= to_delete
 
       if index
         category_rules[index]['filter'] = filter
