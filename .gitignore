@@ -43,3 +43,5 @@ bower.json
 
 # IntelliJ IDEs info
 .idea/*
+
+gems/*

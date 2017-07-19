@@ -1,5 +1,5 @@
 en:
   site_settings:
-    gitter_enabled: "Will this plugin use gitter?"
+    gitter_enabled: "Enable gitter integration?"
     gitter_notification_delay: 'Wait (n) seconds before posting to Gitter, to give users a chance to edit and finalize their posts.'
-
+    gitter_bot_user_token: "Your gitter bot user's personal access token"

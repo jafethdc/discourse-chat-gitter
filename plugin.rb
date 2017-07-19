@@ -14,6 +14,19 @@ def gitter_require(path)
   require Rails.root.join('plugins', 'discourse-chat-gitter', 'app', path).to_s
 end
 
+gem 'cookiejar', '0.3.2', require: false
+gem 'eventmachine', '1.2.0.1', require: false
+gem 'em-socksify', '0.3.1', require: false
+gem 'http_parser.rb', '0.6.0', require: false
+gem 'em-http-request', '1.1.5', require: false
+gem 'websocket-extensions', '0.1.2', require: false
+gem 'websocket-driver', '0.6.5', require: false
+gem 'faye-websocket', '0.10.7', require: false
+gem 'faye', '1.2.4', require: false
+
+require 'eventmachine'
+require 'faye'
+
 after_initialize do
   gitter_require 'initializers/gitter'
   gitter_require 'lib/gitter'
@@ -22,6 +35,9 @@ after_initialize do
   gitter_require 'controllers/filter_rules_controller'
   gitter_require 'controllers/integrations_controller'
   gitter_require 'jobs/regular/notify_gitter'
+  gitter_require 'lib/gitter_bot'
+
+  GitterBot.init
 
   DiscourseEvent.on(:post_created) do |post|
     if SiteSetting.gitter_enabled?

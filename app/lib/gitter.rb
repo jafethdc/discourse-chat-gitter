@@ -109,7 +109,7 @@ module DiscourseGitter
     def self.delete_integration(room)
       PluginStore.remove(DiscourseGitter::PLUGIN_NAME, "integration_#{room}")
       PluginStoreRow.where(plugin_name: DiscourseGitter::PLUGIN_NAME).where('key LIKE ?', 'category_%').each do |row|
-        cleared_rules= PluginStore.cast_value(row.type_name, row.value).reject { |rule| rule[:room] == room }
+        cleared_rules = PluginStore.cast_value(row.type_name, row.value).reject { |rule| rule[:room] == room }
         row.update(value: cleared_rules.to_json)
       end
     end
