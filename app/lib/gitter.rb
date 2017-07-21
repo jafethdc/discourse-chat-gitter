@@ -79,6 +79,17 @@ module DiscourseGitter
       PluginStore.get(DiscourseGitter::PLUGIN_NAME, category_filters_row_key(category_id)) || []
     end
 
+    def self.get_room_rules(room)
+      rules = []
+      PluginStoreRow.where(plugin_name: DiscourseGitter::PLUGIN_NAME).where('key LIKE ?', 'category_%').each do |row|
+        PluginStore.cast_value(row.type_name, row.value).each do |rule|
+          category_id = row.key == 'category_*' ? nil : row.key.gsub('category_', '')
+          rules << rule.merge(category_id: category_id) if rule[:room] == room
+        end
+      end
+      rules
+    end
+
     def self.category_filters_row_key(category_id)
       "category_#{category_id.present? ? category_id : '*'}"
     end

@@ -3,3 +3,4 @@ en:
     gitter_enabled: "Enable gitter integration?"
     gitter_notification_delay: 'Wait (n) seconds before posting to Gitter, to give users a chance to edit and finalize their posts.'
     gitter_bot_user_token: "Your gitter bot user's personal access token"
+    gitter_command_users: 'List the users who should be allowed to use the gitter commands (comma separated).'

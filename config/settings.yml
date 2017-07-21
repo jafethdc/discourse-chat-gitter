@@ -8,4 +8,7 @@ plugins:
   gitter_notification_delay:
     default: 20
     client: true
+  gitter_command_users:
+    default: ''
+    client: true
 
