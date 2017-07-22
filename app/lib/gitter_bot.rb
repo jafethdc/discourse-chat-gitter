@@ -45,17 +45,21 @@ class GitterBot
         when 'status'
           send_message(room_id, status_message(room))
         else
-          send_message(room_id, "Sorry, the specified command doesn't exist")
+          send_message(room_id, I18n.t('gitter.bot.nonexistent_command'))
         end
       else
-        send_message(room_id, "Sorry, @#{user} you don't have permission to execute discourse commands.")
+        send_message(room_id, I18n.t('gitter.bot.unauthorized_user', user: user))
       end
     end
   end
 
   def self.subscribe_room(room)
     room_id = fetch_room_id(room)
-    @faye_thread[:faye_client].subscribe("/api/v1/rooms/#{room_id}/chatMessages") { |m| handle_message(m, room, room_id) } if room_id.present?
+    if room_id.present?
+      @faye_thread[:faye_client].subscribe("/api/v1/rooms/#{room_id}/chatMessages") do |m|
+        handle_message(m, room, room_id)
+      end
+    end
   end
 
   def self.unsubscribe_room(room)
@@ -65,7 +69,7 @@ class GitterBot
 
   def self.fetch_room_id(room)
     @rooms ||= {}
-    unless @rooms.key? room
+    unless @rooms.key?(room)
       @rooms = fetch_rooms.map { |r| [r['name'], r['id']] }.to_h
     end
     @rooms[room]
@@ -101,11 +105,14 @@ class GitterBot
 
   def self.status_message(room)
     rules = DiscourseGitter::Gitter.get_room_rules(room)
-    message = "__Rules for this room__\n(if multiple rules match a post, the topmost rule is executed)\n"
+    message = "__#{I18n.t('gitter.bot.status_title')}__\n"
     rules.each_with_index do |rule, i|
-      tags = rule[:tags].join(',')
-      message += "(#{i + 1}) `#{rule[:filter]}` posts in `#{rule[:category]}` #{"with tags: `#{tags}`" if tags.present?}\n"
+      filter = I18n.t("gitter.bot.filters.#{rule[:filter]}")
+      category = Category.find_by(id: rule[:category_id]).try(:name) || I18n.t('gitter.bot.all_categories')
+      tags = Tag.where(name: rule[:tags]).map(&:name)
+      with_tags = I18n.t('gitter.bot.with_tags', tags: tags) if tags.present?
+      message += I18n.t("gitter.bot.filter", index: i + 1, filter: filter, category: category, with_tags: with_tags)
     end
-    message
+    "> #{message}"
   end
 end
