@@ -10,8 +10,9 @@ en:
       nonexistent_command: "Sorry, that command doesn't exist."
       status_title: "Rules for this room"
       all_categories: "all categories"
-      filter: "__(%{index})__ `%{filter}` posts in `%{category}` `%{with_tags}`\n"
-      with_tags: "with tags %{tags}"
+      filter: "__(%{index})__ `%{filter}` posts in `%{category}` %{with_tags}\n"
+      with_tags: "with tags `%{tags}`"
+      nonexistent_rule: "Sorry, the specified rule doesn't exist."
       filters:
         mute: 'Mute'
         follow: 'Follow'

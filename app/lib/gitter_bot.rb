@@ -41,9 +41,11 @@ class GitterBot
       user = message.dig('model', 'fromUser', 'username')
       is_user_permitted = permitted_users.include? user
       if is_user_permitted
-        case tokens.second.downcase
+        case tokens.second.try(:downcase)
         when 'status'
           send_message(room_id, status_message(room))
+        when 'remove'
+          handle_remove_rule(room, room_id, tokens.third)
         else
           send_message(room_id, I18n.t('gitter.bot.nonexistent_command'))
         end
@@ -110,9 +112,20 @@ class GitterBot
       filter = I18n.t("gitter.bot.filters.#{rule[:filter]}")
       category = Category.find_by(id: rule[:category_id]).try(:name) || I18n.t('gitter.bot.all_categories')
       tags = Tag.where(name: rule[:tags]).map(&:name)
-      with_tags = I18n.t('gitter.bot.with_tags', tags: tags) if tags.present?
-      message += I18n.t("gitter.bot.filter", index: i + 1, filter: filter, category: category, with_tags: with_tags)
+      with_tags = tags.present? ? I18n.t('gitter.bot.with_tags', tags: tags) : ''
+      message += I18n.t('gitter.bot.filter', index: i + 1, filter: filter, category: category, with_tags: with_tags)
     end
     "> #{message}"
+  end
+
+  def self.handle_remove_rule(room, room_id, index)
+    rules = DiscourseGitter::Gitter.get_room_rules(room)
+    if (index.to_i - 1) < rules.length
+      rule = rules.at(index.to_i - 1)
+      DiscourseGitter::Gitter.delete_rule(rule[:category_id], rule[:room], rule[:filter], rule[:tags])
+      send_message(room_id, status_message(room))
+    else
+      send_message(room_id, I18n.t('gitter.bot.nonexistent_rule'))
+    end
   end
 end
