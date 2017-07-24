@@ -13,6 +13,8 @@ en:
       filter: "__(%{index})__ `%{filter}` posts in `%{category}` %{with_tags}\n"
       with_tags: "with tags `%{tags}`"
       nonexistent_rule: "Sorry, the specified rule doesn't exist."
+      nonexistent_category: "Sorry, but the category %{category} doesn't exist."
+      nonexistent_tags: "Sorry, but the tags %{tags} don't exist"
       filters:
         mute: 'Mute'
         follow: 'Follow'

@@ -36,16 +36,17 @@ class GitterBot
   def self.handle_message(message, room, room_id)
     puts message.inspect
     tokens = message.dig('model', 'text').split
-    is_discourse_command = tokens.first == '/discourse'
-    if is_discourse_command
+    if tokens.first == '/discourse'
       user = message.dig('model', 'fromUser', 'username')
-      is_user_permitted = permitted_users.include? user
-      if is_user_permitted
-        case tokens.second.try(:downcase)
+      if permitted_users.include? user
+        action = tokens.second.try(:downcase)
+        case action
         when 'status'
           send_message(room_id, status_message(room))
         when 'remove'
           handle_remove_rule(room, room_id, tokens.third)
+        when 'watch', 'follow', 'mute'
+          handle_add_rule(room, action, tokens[2..-1].join)
         else
           send_message(room_id, I18n.t('gitter.bot.nonexistent_command'))
         end
@@ -127,5 +128,43 @@ class GitterBot
     else
       send_message(room_id, I18n.t('gitter.bot.nonexistent_rule'))
     end
+  end
+
+  def self.handle_add_rule(room, filter, params)
+    room_id = fetch_room_id(room)
+
+    tags_index = params.index('tags:')
+    tags = []
+    if tags_index.present?
+      tags_token = params[tags_index..-1]
+      params.sub!(tags_token, '')
+      tags_names = tags_token.sub('tags:', '').split(',').map(&:strip)
+      tags = Tag.where(name: tags_names).pluck(:name)
+      tags_diff = tags_names - tags
+      if tags_diff.present?
+        send_message(room_id, I18n.t('gitter.bot.nonexistent_tags', tags: tags_diff))
+        return
+      end
+    end
+
+    if params.present?
+      category = Category.find_by(name: params.strip)
+      if category
+        category_id = category.id
+      else
+        send_message(room_id, I18n.t('gitter.bot.nonexistent_category', category: params.strip))
+        return
+      end
+    else
+      if tags_index.present?
+        category_id = nil
+      else
+        send_message(room_id, I18n.t('gitter.bot.no_new_rule_params'))
+        return
+      end
+    end
+
+    DiscourseGitter::Gitter.set_rule(category_id, room, filter, tags)
+    send_message(room_id, status_message(room))
   end
 end
