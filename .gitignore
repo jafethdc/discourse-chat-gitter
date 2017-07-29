@@ -45,3 +45,4 @@ bower.json
 .idea/*
 
 gems/*
+.rubocop.yml

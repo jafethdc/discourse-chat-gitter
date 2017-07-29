@@ -2,13 +2,17 @@ plugins:
   gitter_enabled:
     default: false
     client: true
+  gitter_bot_enabled:
+    default: false
+    client: true
+    validator: "GitterBotEnabledValidator"
   gitter_bot_user_token:
     default: ''
     client: true
+    validator: "GitterBotUserTokenValidator"
   gitter_notification_delay:
     default: 20
     client: true
   gitter_command_users:
     default: ''
     client: true
-

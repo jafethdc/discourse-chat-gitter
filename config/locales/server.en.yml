@@ -2,8 +2,12 @@ en:
   site_settings:
     gitter_enabled: "Enable gitter integration?"
     gitter_notification_delay: 'Wait (n) seconds before posting to Gitter, to give users a chance to edit and finalize their posts.'
+    gitter_bot_enabled: "Enable gitter bot for chat commands?"
     gitter_bot_user_token: "Your gitter bot user's personal access token"
     gitter_command_users: "List the users who should be allowed to use the gitter commands (comma separated)."
+    errors:
+      gitter_bot_user_token_empty: "It's necessary that you provide an Gitter bot access token if you want to enable this option."
+      gitter_bot_user_nonexistent: "No Gitter user exists with the specified token."
   gitter:
     bot:
       unauthorized_user: "Sorry, @%{user} you don't have permission to execute discourse commands."
@@ -15,6 +19,7 @@ en:
       nonexistent_rule: "Sorry, the specified rule doesn't exist."
       nonexistent_category: "Sorry, but the category %{category} doesn't exist."
       nonexistent_tags: "Sorry, but the tags %{tags} don't exist"
+      no_new_rule_params: "Sorry, no category or tags were specified."
       filters:
         mute: 'Mute'
         follow: 'Follow'

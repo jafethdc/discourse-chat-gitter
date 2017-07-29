@@ -92,7 +92,6 @@ RSpec.describe DiscourseGitter::Gitter do
     #
     # 7) existent: { tags: [a, b], filter: 'follow', ... }
     #    new:      { tags: [b, c], filter: 'mute', ... }
-    #
 
     let(:tag_names) { Fabricate.times(3, :tag).map(&:name) }
 

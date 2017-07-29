@@ -5,9 +5,7 @@
 # url: https://github.com/JafethDC/discourse-chat-gitter
 
 enabled_site_setting :gitter_enabled
-
 add_admin_route 'gitter.title', 'gitter'
-
 register_asset 'stylesheets/gitter-admin.scss'
 
 def gitter_require(path)
@@ -26,6 +24,9 @@ gem 'faye', '1.2.4', require: false
 
 require 'eventmachine'
 require 'faye'
+
+gitter_require 'validators/gitter_bot_enabled_validator'
+gitter_require 'validators/gitter_bot_user_token_validator'
 
 after_initialize do
   gitter_require 'initializers/gitter'
