@@ -10,16 +10,23 @@ en:
       gitter_bot_user_nonexistent: "No Gitter user exists with the specified token."
   gitter:
     bot:
-      unauthorized_user: "Sorry, @%{user} you don't have permission to execute discourse commands."
-      nonexistent_command: "Sorry, that command doesn't exist."
-      status_title: "Rules for this room"
+      unauthorized_user: "> Sorry, @%{user} you don't have permission to execute discourse commands."
+      nonexistent_command: "> Sorry, that command doesn't exist."
+      status_title: "> __Rules for this room__\n"
       all_categories: "all categories"
       filter: "__(%{index})__ `%{filter}` posts in `%{category}` %{with_tags}\n"
       with_tags: "with tags `%{tags}`"
-      nonexistent_rule: "Sorry, the specified rule doesn't exist."
-      nonexistent_category: "Sorry, but the category %{category} doesn't exist."
-      nonexistent_tags: "Sorry, but the tags %{tags} don't exist"
-      no_new_rule_params: "Sorry, no category or tags were specified."
+      nonexistent_rule: "> Sorry, the specified rule doesn't exist."
+      nonexistent_category: "> Sorry, but the category `%{category}` doesn't exist."
+      nonexistent_tags: "> Sorry, but the tags `%{tags}` don't exist"
+      no_new_rule_params: "> Sorry, no category or tags were specified."
+      help: |
+        > __New rule:__ `/discourse [watch|follow|mute] [category] [tags:name1,name2]`
+        (you must specify a rule type and at least one category or tag)
+        __Remove rule:__ `/discourse remove [rule number]`
+        (`[rule number]` can be found by running `/discourse status`)
+        __List rules:__ `/discourse status`
+        __Help:__ `/discourse help`
       filters:
         mute: 'Mute'
         follow: 'Follow'

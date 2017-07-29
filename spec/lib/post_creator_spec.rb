@@ -16,7 +16,7 @@ RSpec.describe PostCreator do
       end
 
       it 'schedules a job for gitter post' do
-        Timecop.freeze do
+        freeze_time do
           post = PostCreator.new(topic.user, raw: 'this is a reply. yep it is.', topic_id: topic.id).create!
           job = Jobs::NotifyGitter.jobs.last
           expected_time = (Time.zone.now + SiteSetting.gitter_notification_delay.seconds).to_f

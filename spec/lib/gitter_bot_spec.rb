@@ -42,18 +42,18 @@ RSpec.describe GitterBot do
 
   describe '.status_message'
 
-  describe '.handle_add_rule' do
+  describe '.add_rule' do
     context 'when category is passed but tags are not' do
       it 'calls set_rule with the proper params' do
         DiscourseGitter::Gitter.expects(:set_rule).with(category.id, intgr[:room], 'watch', [])
-        GitterBot.handle_add_rule(intgr[:room], 'watch', category.name)
+        GitterBot.add_rule(intgr[:room], 'watch', category.name)
       end
     end
 
     context 'when no category is passed but tags are' do
       it 'calls set_rule with the proper params' do
         DiscourseGitter::Gitter.expects(:set_rule).with(nil, intgr[:room], 'follow', tags_names)
-        GitterBot.handle_add_rule(intgr[:room], 'follow', "tags: #{tags_names.join(',')}")
+        GitterBot.add_rule(intgr[:room], 'follow', "tags: #{tags_names.join(',')}")
       end
     end
 
@@ -61,7 +61,7 @@ RSpec.describe GitterBot do
       context 'when all the tags exist' do
         it 'calls set_rule with the proper params' do
           DiscourseGitter::Gitter.expects(:set_rule).with(category.id, intgr[:room], 'watch', tags_names)
-          GitterBot.handle_add_rule(intgr[:room], 'watch', "#{category.name} tags: #{tags_names.join(',')}")
+          GitterBot.add_rule(intgr[:room], 'watch', "#{category.name} tags: #{tags_names.join(',')}")
         end
       end
 
@@ -69,20 +69,20 @@ RSpec.describe GitterBot do
         it 'calls send_message with the proper params' do
           tags_names.push 'awesometag'
           GitterBot.expects(:send_message).with(intgr[:room_id], I18n.t('gitter.bot.nonexistent_tags', tags: ['awesometag']))
-          GitterBot.handle_add_rule(intgr[:room], 'watch', "#{category.name} tags: #{tags_names.join(',')}")
+          GitterBot.add_rule(intgr[:room], 'watch', "#{category.name} tags: #{tags_names.join(',')}")
         end
       end
 
       context 'when category does not exist' do
         it 'calls send_message with the proper params' do
           GitterBot.expects(:send_message).with(intgr[:room_id], I18n.t('gitter.bot.nonexistent_category', category: 'catabc'))
-          GitterBot.handle_add_rule(intgr[:room], 'watch', 'catabc')
+          GitterBot.add_rule(intgr[:room], 'watch', 'catabc')
         end
       end
     end
   end
 
-  describe '.handle_remove_rule' do
+  describe '.remove_rule' do
     before(:each) do
       DiscourseGitter::Gitter.set_rule(category.id, intgr[:room], 'mute')
       DiscourseGitter::Gitter.set_rule(nil, intgr[:room], 'watch')
@@ -93,7 +93,7 @@ RSpec.describe GitterBot do
 
       it 'calls send message with proper params' do
         GitterBot.expects(:send_message).with(intgr[:room_id], I18n.t('gitter.bot.nonexistent_rule'))
-        GitterBot.handle_remove_rule(intgr[:room], 5)
+        GitterBot.remove_rule(intgr[:room], 5)
       end
     end
 
@@ -101,7 +101,7 @@ RSpec.describe GitterBot do
       it 'calls send message with proper params' do
         # expect remove_rule is called
         GitterBot.expects(:send_message).with(intgr[:room_id], regexp_matches(/#{I18n.t('gitter.bot.status_title')}/))
-        GitterBot.handle_remove_rule(intgr[:room], 0)
+        GitterBot.remove_rule(intgr[:room], 0)
       end
     end
   end
@@ -142,7 +142,7 @@ RSpec.describe GitterBot do
       let(:message) { gitter_message('/discourse remove 1', 'thomyorke') }
 
       it 'calls send_message with the proper params' do
-        GitterBot.expects(:handle_remove_rule).with(intgr[:room], '1')
+        GitterBot.expects(:remove_rule).with(intgr[:room], '1')
         GitterBot.handle_message(message, intgr[:room], intgr[:room_id])
       end
     end

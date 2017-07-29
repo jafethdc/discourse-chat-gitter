@@ -58,9 +58,11 @@ class GitterBot
           when 'status'
             send_message(room_id, status_message(room))
           when 'remove'
-            handle_remove_rule(room, tokens.third)
+            remove_rule(room, tokens.third)
           when 'watch', 'follow', 'mute'
-            handle_add_rule(room, action, tokens[2..-1].join)
+            add_rule(room, action, tokens[2..-1].join)
+          when 'help'
+            send_message(room_id, I18n.t('gitter.bot.help'))
           else
             send_message(room_id, I18n.t('gitter.bot.nonexistent_command'))
           end
@@ -130,7 +132,7 @@ class GitterBot
 
   def self.status_message(room)
     rules = DiscourseGitter::Gitter.get_room_rules(room)
-    message = "__#{I18n.t('gitter.bot.status_title')}__\n"
+    message = I18n.t('gitter.bot.status_title').dup
     rules.each_with_index do |rule, i|
       filter = I18n.t("gitter.bot.filters.#{rule[:filter]}")
       category = Category.find_by(id: rule[:category_id]).try(:name) || I18n.t('gitter.bot.all_categories')
@@ -138,10 +140,10 @@ class GitterBot
       with_tags = tags.present? ? I18n.t('gitter.bot.with_tags', tags: tags) : ''
       message << I18n.t('gitter.bot.filter', index: i + 1, filter: filter, category: category, with_tags: with_tags)
     end
-    "> #{message}"
+    message
   end
 
-  def self.handle_remove_rule(room, index)
+  def self.remove_rule(room, index)
     room_id = fetch_room_id(room)
     rules = DiscourseGitter::Gitter.get_room_rules(room)
     # The indices shown in the chat begin in 1
@@ -155,7 +157,7 @@ class GitterBot
     end
   end
 
-  def self.handle_add_rule(room, filter, params)
+  def self.add_rule(room, filter, params)
     room_id = fetch_room_id(room)
 
     tags_index = params.index('tags:')
