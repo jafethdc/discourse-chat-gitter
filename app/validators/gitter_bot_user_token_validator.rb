@@ -7,7 +7,7 @@ class GitterBotUserTokenValidator
     return false if val.blank?
     return false unless gitter_token_valid?(val)
     GitterBot.stop
-    GitterBot.init
+    GitterBot.init(val)
     true
   end
 

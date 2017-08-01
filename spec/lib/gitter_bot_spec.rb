@@ -1,5 +1,23 @@
 require 'rails_helper'
 
+RSpec.shared_examples 'does not run the bot' do |user_token, force|
+  it "won't run the bot" do
+    GitterBot.init user_token, force
+    sleep(5)
+    expect(GitterBot.running?).to be_falsey
+  end
+end
+
+RSpec.shared_examples 'runs the bot' do |user_token, force|
+  it 'runs the bot' do
+    GitterBot.init user_token, force
+    sleep(5)
+    expect(GitterBot.running?).to be_truthy
+  end
+
+  after(:each) { GitterBot.stop }
+end
+
 RSpec.describe GitterBot do
   let!(:intgr) { DiscourseGitter::Gitter.set_integration('comm/room1', '123', 'http://gitter.com/webhook') }
   let!(:intgr2) { DiscourseGitter::Gitter.set_integration('comm/room2', '456', 'http://gitter.com/webhook') }
@@ -7,40 +25,57 @@ RSpec.describe GitterBot do
   let!(:tags_names) { Fabricate.times(3, :tag).map(&:name) }
 
   before do
-    SiteSetting.gitter_enabled = true
     SiteSetting.tagging_enabled = true
-    GitterBot.stubs(:fetch_rooms).returns([{ 'name'=>intgr[:room], 'id'=>intgr[:room_id] }, { 'name'=>intgr2[:room], 'id'=>intgr2[:room_id] }])
     SiteSetting.gitter_command_users = 'rogerwaters, thomyorke, robinpecknold'
+    SiteSetting.gitter_enabled = true
+
+    rooms_response = [{ 'name'=>intgr[:room], 'id'=>intgr[:room_id] }, { 'name'=>intgr2[:room], 'id'=>intgr2[:room_id] }].to_json
+    stub_request(:get, 'https://api.gitter.im/v1/rooms').to_return(body: rooms_response)
+
+    GitterBot.stubs(:rooms_names).returns([intgr[:room], intgr2[:room]])
+
     stub_request(:post, %r{https://api.gitter.im/v1/rooms/.+/chatMessages}).to_return(status: 200)
   end
 
   describe '.init' do
-    context 'when gitter bot setting is not enabled' do
-      it "won't run the bot" do
-        GitterBot.init
-        sleep(5)
-        expect(GitterBot.running?).to be_falsey
+    context 'when gitter bot is not enabled' do
+      before(:each) { SiteSetting.stubs(:gitter_bot_enabled).returns(false) }
+
+      context 'when user token setting is present and init is forced' do
+        before(:each) { SiteSetting.stubs(:gitter_bot_user_token).returns('gitterbot123') }
+        include_examples 'runs the bot', nil, true
+      end
+
+      context 'when user token setting is not present and init is forced' do
+        include_examples 'does not run the bot', nil, true
+      end
+
+      context 'when user token setting is not present and init is not forced' do
+        include_examples 'does not run the bot', nil, false
       end
     end
 
     context 'when gitter bot setting is enabled' do
       before(:each) do
-        GitterBotUserTokenValidator.any_instance.stubs(:valid_value?).with('gitterbot123').returns(true)
-        SiteSetting.gitter_bot_user_token = 'gitterbot123'
-        SiteSetting.gitter_bot_enabled = true
+        SiteSetting.stubs(:gitter_bot_user_token).returns('gitterbot123')
+        SiteSetting.stubs(:gitter_bot_enabled).returns(true)
       end
 
-      it 'runs the bot' do
-        GitterBot.init
+      include_examples 'runs the bot', nil, false
+    end
+
+    context 'when user_token is passed' do
+      before(:each) { SiteSetting.stubs(:gitter_bot_enabled).returns(true) }
+
+      it 'calls user_token at least once' do
+        GitterBot.expects(:user_token).at_least_once
+        GitterBot.init('gitterbot123')
         sleep(5)
-        expect(GitterBot.running?).to be_truthy
       end
 
       after(:each) { GitterBot.stop }
     end
   end
-
-  describe '.status_message'
 
   describe '.add_rule' do
     context 'when category is passed but tags are not' do
@@ -148,7 +183,6 @@ RSpec.describe GitterBot do
     end
   end
 end
-
 
 def gitter_message(text, username)
   { 'model' => { 'text' => text, 'fromUser' => { 'username' => username } } }

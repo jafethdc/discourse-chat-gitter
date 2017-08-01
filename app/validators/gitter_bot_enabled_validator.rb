@@ -9,8 +9,7 @@ class GitterBotEnabledValidator
       true
     else
       return false unless SiteSetting.gitter_bot_user_token.present?
-      GitterBot.stop
-      GitterBot.init
+      GitterBot.init(nil, true)
       true
     end
   end

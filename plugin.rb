@@ -38,7 +38,7 @@ after_initialize do
   gitter_require 'jobs/regular/notify_gitter'
   gitter_require 'lib/gitter_bot'
 
-  GitterBot.init unless Sidekiq.server?
+  GitterBot.init unless Sidekiq.server? || Rails.env.test?
 
   DiscourseEvent.on(:post_created) do |post|
     if SiteSetting.gitter_enabled?

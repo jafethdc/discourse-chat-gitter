@@ -114,7 +114,10 @@ module DiscourseGitter
     def self.set_integration(room, room_id, webhook)
       integration = { room: room, room_id: room_id, webhook: webhook }
       saved = PluginStore.set(DiscourseGitter::PLUGIN_NAME, "integration_#{integration[:room]}", integration.slice(:room_id, :webhook))
-      saved ? integration : nil
+      if saved
+        GitterBot.subscribe_room(room) if GitterBot.running?
+        integration
+      end
     end
 
     def self.delete_integration(room)
@@ -123,6 +126,7 @@ module DiscourseGitter
         cleared_rules = PluginStore.cast_value(row.type_name, row.value).reject { |rule| rule[:room] == room }
         row.update(value: cleared_rules.to_json)
       end
+      GitterBot.unsubscribe_room(room) if GitterBot.running?
     end
 
     def self.test_notification(room)
