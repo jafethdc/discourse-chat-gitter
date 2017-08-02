@@ -136,7 +136,7 @@ RSpec.describe GitterBot do
       it 'calls send message with proper params' do
         # expect remove_rule is called
         GitterBot.expects(:send_message).with(intgr[:room_id], regexp_matches(/#{I18n.t('gitter.bot.status_title')}/))
-        GitterBot.remove_rule(intgr[:room], 0)
+        GitterBot.remove_rule(intgr[:room], '0')
       end
     end
   end

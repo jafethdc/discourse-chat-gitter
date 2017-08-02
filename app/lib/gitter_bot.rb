@@ -111,7 +111,7 @@ class GitterBot
     room_id = fetch_room_id(room)
     rules = DiscourseGitter::Gitter.get_room_rules(room)
     # The indices shown in the chat begin in 1
-    index -= 1
+    index = index.to_i - 1
     if index < rules.length
       rule = rules.at index
       DiscourseGitter::Gitter.delete_rule(rule[:category_id], rule[:room], rule[:filter], rule[:tags])
