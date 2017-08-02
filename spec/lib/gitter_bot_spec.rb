@@ -181,6 +181,17 @@ RSpec.describe GitterBot do
         GitterBot.handle_message(message, intgr[:room], intgr[:room_id])
       end
     end
+
+    context 'when an exception is raised' do
+      before(:each) { GitterBot.stubs(:add_rule).raises(StandardError, 'Error!') }
+      let(:message) { gitter_message('/discourse errorprone', 'thomyorke') }
+
+      it 'rescues properly' do
+        GitterBot.handle_message(message, 'gitter/meta', 'room123')
+        expect(SiteSetting.gitter_bot_enabled).to be_falsey
+        expect(GitterBot.running?).to be_falsey
+      end
+    end
   end
 end
 

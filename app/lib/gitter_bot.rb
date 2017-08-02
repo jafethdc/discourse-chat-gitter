@@ -67,8 +67,8 @@ class GitterBot
   end
 
   def self.handle_message(message, room, room_id)
-    puts 'MESSAGE FROM GITTER'
-    puts message.inspect
+    p 'GITTER MESSAGE'
+    p message.inspect
     text = message.dig('model', 'text')
     return if text.nil?
     tokens = text.split
@@ -77,21 +77,26 @@ class GitterBot
       if permitted_users.include? user
         action = tokens.second.try(:downcase)
         case action
-          when 'status'
-            send_message(room_id, status_message(room))
-          when 'remove'
-            remove_rule(room, tokens.third)
-          when 'watch', 'follow', 'mute'
-            add_rule(room, action, tokens[2..-1].join)
-          when 'help'
-            send_message(room_id, I18n.t('gitter.bot.help'))
-          else
-            send_message(room_id, I18n.t('gitter.bot.nonexistent_command'))
+        when 'status'
+          send_message(room_id, status_message(room))
+        when 'remove'
+          remove_rule(room, tokens.third)
+        when 'watch', 'follow', 'mute'
+          add_rule(room, action, tokens[2..-1].join)
+        when 'help'
+          send_message(room_id, I18n.t('gitter.bot.help'))
+        else
+          send_message(room_id, I18n.t('gitter.bot.nonexistent_command'))
         end
       else
         send_message(room_id, I18n.t('gitter.bot.unauthorized_user', user: user))
       end
     end
+  rescue => e
+    p e.message
+    p e.backtrace
+    @running = false
+    SiteSetting.gitter_bot_enabled = false
   end
 
   def self.send_message(room_id, text)
