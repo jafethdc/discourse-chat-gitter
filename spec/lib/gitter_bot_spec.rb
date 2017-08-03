@@ -64,6 +64,22 @@ RSpec.describe GitterBot do
       include_examples 'runs the bot', nil, false
     end
 
+    context 'when gitter bot is already running' do
+      before(:each) do
+        SiteSetting.stubs(:gitter_bot_user_token).returns('gitterbot123')
+        SiteSetting.stubs(:gitter_bot_enabled).returns(true)
+      end
+
+      it 'runs the bot' do
+        GitterBot.expects(:rooms_names).at_most_once
+        GitterBot.init
+        sleep(5)
+        GitterBot.init
+      end
+
+      after(:each) { GitterBot.stop }
+    end
+
     context 'when user_token is passed' do
       before(:each) { SiteSetting.stubs(:gitter_bot_enabled).returns(true) }
 
