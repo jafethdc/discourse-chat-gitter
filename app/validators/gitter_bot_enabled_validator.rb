@@ -4,6 +4,7 @@ class GitterBotEnabledValidator
   end
 
   def valid_value?(val)
+    p 'GITTER: VALIDATING BOT ENABLED'
     if val == 'f'
       GitterBot.stop
       true

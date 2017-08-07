@@ -4,6 +4,7 @@ class GitterBotUserTokenValidator
   end
 
   def valid_value?(val)
+    p 'GITTER: VALIDATING BOT USER TOKEN'
     return false if val.blank?
     return false unless gitter_token_valid?(val)
     GitterBot.stop

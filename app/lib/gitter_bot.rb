@@ -12,6 +12,7 @@ class GitterBot
   end
 
   def self.init(token = nil, force = false)
+    p 'GITTER: INIT'
     return if @faye_thread.try(:alive?)
     return unless SiteSetting.gitter_bot_enabled || (force && SiteSetting.gitter_bot_user_token.present?)
     @user_token = token || SiteSetting.gitter_bot_user_token
@@ -23,11 +24,13 @@ class GitterBot
 
         rooms_names.each { |room| subscribe_room(room) }
         @running = true
+        p 'GITTER: INIT FINISHED'
       end
     end
   end
 
   def self.stop
+    p 'GITTER: STOP'
     EM.stop_event_loop if @running
     @faye_thread.try(:kill)
     @running = false
