@@ -31,37 +31,46 @@ class GitterBot
 
   def self.stop
     p 'GITTER: STOP'
+    subscriptions.values.each(&:unsubscribe)
+    subscriptions.clear
     EM.stop_event_loop if @running
     @faye_thread.try(:kill)
     @running = false
-    @rooms = {}
+    rooms.clear
+  end
+
+  def self.user_token
+    @user_token
   end
 
   def self.running?
     @running ||= false
   end
 
+  def self.subscriptions
+    @subscriptions ||= {}
+  end
+
+  def self.rooms
+    @rooms ||= {}
+  end
+
   def self.subscribe_room(room)
     room_id = fetch_room_id(room)
     p "room for #{room} :  #{room_id} -"
     if room_id.present?
-      @faye_thread[:faye_client].subscribe("/api/v1/rooms/#{room_id}/chatMessages") do |m|
+      subscriptions[room] = @faye_thread[:faye_client].subscribe("/api/v1/rooms/#{room_id}/chatMessages") do |m|
         handle_message(m, room, room_id)
       end
     end
   end
 
   def self.unsubscribe_room(room)
-    room_id = fetch_room_id(room)
-    @faye_thread[:faye_client].unsubscribe("/api/v1/rooms/#{room_id}/chatMessages") if room_id.present?
+    subscriptions.delete(room).try(:unsubscribe)
   end
 
   def self.permitted_users
     SiteSetting.gitter_command_users.split(',').map(&:strip)
-  end
-
-  def self.user_token
-    @user_token
   end
 
   def self.rooms_names
@@ -181,11 +190,10 @@ class GitterBot
   end
 
   def self.fetch_room_id(room)
-    @rooms ||= {}
-    unless @rooms.key?(room)
-      @rooms = fetch_rooms.map { |r| [r['name'], r['id']] }.to_h
+    unless rooms.key?(room)
+      rooms.merge!(fetch_rooms.map { |r| [r['name'], r['id']] }.to_h)
     end
-    @rooms[room]
+    rooms[room]
   end
 
   def self.fetch_rooms
