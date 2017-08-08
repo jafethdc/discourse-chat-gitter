@@ -12,7 +12,7 @@ class GitterBot
   end
 
   def self.init(token = nil, force = false)
-    p 'GITTER: INIT'
+    p 'GITTER: INITIALIZATION STARTED'
     return if @faye_thread.try(:alive?)
     return unless SiteSetting.gitter_bot_enabled || (force && SiteSetting.gitter_bot_user_token.present?)
     @user_token = token || SiteSetting.gitter_bot_user_token
@@ -24,19 +24,22 @@ class GitterBot
 
         rooms_names.each { |room| subscribe_room(room) }
         @running = true
-        p 'GITTER: INIT FINISHED'
+        p 'GITTER: INITIALIZATION FINISHED'
       end
     end
   end
 
   def self.stop
-    p 'GITTER: STOP'
+    p 'GITTER: TERMINATION STARTED'
+    p 'GITTER: UNSUBSCRIBING ROOMS'
     subscriptions.values.each(&:unsubscribe)
     subscriptions.clear
+    p 'GITTER: STOPPING EVENT LOOP'
     EM.stop_event_loop if @running
     @faye_thread.try(:kill)
     @running = false
     rooms.clear
+    p 'GITTER: TERMINATION FINISHED'
   end
 
   def self.user_token
@@ -57,8 +60,8 @@ class GitterBot
 
   def self.subscribe_room(room)
     room_id = fetch_room_id(room)
-    p "room for #{room} :  #{room_id} -"
     if room_id.present?
+      p "GITTER: SUBSCRIBING ROOM #{room}"
       subscriptions[room] = @faye_thread[:faye_client].subscribe("/api/v1/rooms/#{room_id}/chatMessages") do |m|
         handle_message(m, room, room_id)
       end
@@ -66,6 +69,7 @@ class GitterBot
   end
 
   def self.unsubscribe_room(room)
+    p "GITTER: UNSUBSCRIBING ROOM #{room}"
     subscriptions.delete(room).try(:unsubscribe)
   end
 
@@ -80,7 +84,7 @@ class GitterBot
   end
 
   def self.handle_message(message, room, room_id)
-    p 'GITTER MESSAGE'
+    p 'GITTER: MESSAGE RECEIVED'
     p message.inspect
     text = message.dig('model', 'text')
     return if text.nil?
@@ -106,6 +110,7 @@ class GitterBot
       end
     end
   rescue => e
+    p 'GITTER: ERROR HANDLING MESSAGE'
     p e.message
     p e.backtrace
     @running = false
