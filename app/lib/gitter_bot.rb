@@ -100,6 +100,8 @@ class GitterBot
           remove_rule(room, tokens.third)
         when 'watch', 'follow', 'mute'
           add_rule(room, action, tokens[2..-1].join)
+        when 'post'
+          generate_transcript_url room, tokens.third
         when 'help'
           send_message(room_id, I18n.t('gitter.bot.help'))
         else
@@ -181,6 +183,19 @@ class GitterBot
     send_message(room_id, status_message(room))
   end
 
+  def self.generate_transcript_url(room, count)
+    count = count.to_i
+    room_id = fetch_room_id(room)
+    if count <= 0
+      send_message(room_id, I18n.t('gitter.bot.invalid_transcript_param'))
+    else
+      messages = fetch_messages(room, count)
+      post_content = build_transcript(messages)
+      transcript_url = save_transcript(post_content)
+      send_message(room_id, transcript_url)
+    end
+  end
+
   def self.status_message(room)
     rules = DiscourseGitter::Gitter.get_room_rules(room)
     message = I18n.t('gitter.bot.status_title').dup
@@ -210,5 +225,57 @@ class GitterBot
     http.use_ssl = true
     response = http.request(req)
     JSON.parse(response.body)
+  end
+
+  def self.fetch_messages(room, limit)
+    last_message_id = nil
+    messages = []
+    gitter_page_limit = 100
+    while limit > gitter_page_limit
+      messages = fetch_messages_page(room, gitter_page_limit, last_message_id).concat(messages)
+      last_message_id = messages.first['id']
+      limit -= gitter_page_limit
+    end
+    messages = fetch_messages_page(room, limit, last_message_id).concat(messages) unless limit.zero?
+    messages
+  end
+
+  def self.fetch_messages_page(room, size, before_id = nil)
+    room_id = fetch_room_id(room)
+    return if room_id.nil?
+    uri = URI("https://api.gitter.im/v1/rooms/#{room_id}/chatMessages?limit=#{size}&beforeId=#{before_id}")
+    req = Net::HTTP::Get.new uri
+    req['Accept'] = 'application/json'
+    req['Authorization'] = "Bearer #{user_token}"
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    response = http.request(req)
+    JSON.parse(response.body)
+  end
+
+  def self.build_transcript(messages)
+    post_content = "[quote]\n"
+    post_content << 'Here goes the first message url!'
+
+    last_username = ''
+
+    messages.each do |m|
+      username = m.dig('fromUser', 'username')
+      unless username == last_username
+        profile_image = "<img src='#{m.dig('fromUser', 'avatarUrlSmall')}' width='28'>"
+        post_content << "\n #{profile_image} **@#{username}** "
+      end
+
+      last_username = username
+      post_content << m['text'] << '\n'
+    end
+    post_content << "[/quote]\n\n"
+  end
+
+  def self.save_transcript(post_content)
+    secret = SecureRandom.hex
+    redis_key = 'gitter_integration:transcript:' + secret
+    $redis.set(redis_key, post_content, ex: 3600)
+    "#{Discourse.base_url}/gitter-transcript/#{secret}"
   end
 end

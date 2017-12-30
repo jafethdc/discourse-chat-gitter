@@ -35,6 +35,7 @@ after_initialize do
   gitter_require 'routes/discourse'
   gitter_require 'controllers/filter_rules_controller'
   gitter_require 'controllers/integrations_controller'
+  gitter_require 'controllers/public_controller'
   gitter_require 'jobs/regular/notify_gitter'
   gitter_require 'lib/gitter_bot'
 
